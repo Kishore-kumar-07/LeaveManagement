@@ -3,8 +3,11 @@ import "./App.css";
 import EmployeeHome from "./pages/Employee/EmployeeHome";
 import Login from "./pages/User/Login";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Thankyou from "./pages/Thankyou/Thankyou";
+
 
 function App() {
+
   const route = createBrowserRouter([
     {
       path: "/",
@@ -13,6 +16,10 @@ function App() {
     {
       path: "/Employee/",
       element: <EmployeeHome />,
+    },
+    {
+      path:'/thank-you',
+      element:<Thankyou/>
     },
   ]);
   return (

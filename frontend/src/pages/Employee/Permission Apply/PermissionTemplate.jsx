@@ -38,7 +38,7 @@ const PermissionEmailTemplate = ({ date, fromTime, toTime, permissionReason, use
           pX={20}
           pY={10}
           style={{ backgroundColor: '#28a745', color: '#fff', textDecoration: 'none', borderRadius: '5px', marginRight: '10px', padding: '10px' }}
-          href={`http://localhost:5000/permission/accept/${permissionId}`}
+          href={`${process.env.REACT_APP_BASE_URL}/accept/${permissionId}`}
         >
           Accept
         </Button>
@@ -46,7 +46,7 @@ const PermissionEmailTemplate = ({ date, fromTime, toTime, permissionReason, use
           pX={20}
           pY={10}
           style={{ backgroundColor: '#dc3545', color: '#fff', textDecoration: 'none', borderRadius: '5px', padding: '10px' }}
-          href={`http://localhost:5000/permission/deny/${permissionId}`}
+          href={`${process.env.REACT_APP_BASE_URL}/deny/${permissionId}`}
         >
           Decline
         </Button>

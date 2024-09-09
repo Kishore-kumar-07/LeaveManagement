@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import { LocalizationProvider, MobileTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import TextField from "@mui/material/TextField";
-
 import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,12 +12,14 @@ import ConfirmPermission from "./ConfrimPermission";
 import duration from "dayjs/plugin/duration";
 import { render } from "@react-email/render";
 import PermissionEmailTemplate from "./PermissionTemplate";
-import {  DatePicker } from "@mui/x-date-pickers";
-
-
+import { DatePicker } from "@mui/x-date-pickers";
+import { useNavigate } from "react-router-dom";
+import PermissionDetailTable from "./PermissionDetailsTable";
 dayjs.extend(duration);
 
 const PermissionForm = () => {
+  const navigate = useNavigate();
+
   const token = document.cookie.split("=")[1];
   console.log(token);
   const decodedToken = jwtDecode(token);
@@ -48,13 +49,11 @@ const PermissionForm = () => {
     const dayOfWeek = today.day();
 
     // Allow today and tomorrow
-    const isToday = date.isSame(today, 'day');
-    const isTomorrow = date.isSame(today.add(1, 'day'), 'day');
+    const isToday = date.isSame(today, "day");
+    const isTomorrow = date.isSame(today.add(1, "day"), "day");
 
     // If today is Friday, allow Monday (two days after tomorrow)
-    const isMonday =
-      dayOfWeek === 5 &&
-      date.isSame(today.add(3, 'day'), 'day'); // 3 days from Friday to Monday
+    const isMonday = dayOfWeek === 5 && date.isSame(today.add(3, "day"), "day"); // 3 days from Friday to Monday
 
     // Disable weekends (Saturday and Sunday)
     const isWeekend = date.day() === 0 || date.day() === 6;
@@ -100,12 +99,12 @@ const PermissionForm = () => {
           typeof dayjs.duration(toTime.diff(fromTime)).asHours()
         );
         const res = await axios.post(
-          "http://localhost:5000/permission/apply",
+          `${process.env.REACT_APP_BASE_URL}/permission/apply`,
           {
             empId: decodedToken.empId,
             hrs: dayjs.duration(toTime.diff(fromTime)).asHours().toFixed(1),
             reason: permissionReason,
-            date: permissionDate,
+            date: formatDate(permissionDate),
             from: fromTime.format("hh:mm A"),
             to: toTime.format("hh:mm A"),
           },
@@ -138,10 +137,10 @@ const PermissionForm = () => {
   const checkPermission = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/permission/checkPermission",
+        `${process.env.REACT_APP_BASE_URL}/permission/checkPermission`,
         {
           empId: decodedToken.empId,
-          date: permissionDate,
+          date: formatDate(permissionDate),
           hrs: dayjs.duration(toTime.diff(fromTime)).asHours(),
         },
         {
@@ -166,11 +165,11 @@ const PermissionForm = () => {
       toast.error("Somthing went wrong");
     }
   };
-console.log("checiittt",decodedToken.managerMail)
+  console.log("checiittt", decodedToken.managerMail);
   const sendPermissionEmail = async (objId) => {
     const emailContent = await render(
       <PermissionEmailTemplate
-        date={permissionDate}
+        date={formatDate(permissionDate)}
         fromTime={fromTime.format("hh:mm A")}
         toTime={toTime.format("hh:mm A")}
         permissionReason={permissionReason}
@@ -182,7 +181,7 @@ console.log("checiittt",decodedToken.managerMail)
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/mail/send",
+        `${process.env.REACT_APP_BASE_URL}/mail/send`,
         {
           email: decodedToken.managerMail,
           html: emailContent,
@@ -196,8 +195,10 @@ console.log("checiittt",decodedToken.managerMail)
       );
 
       if (response.status === 200) {
-        // navigate("/thank-you");
-        alert("Thank you");
+        toast.success("Mail sent Successfully");
+        setTimeout(() => {
+          navigate("/thank-you");
+        }, 3000);
       } else {
         toast.error("error in sending mail");
       }
@@ -216,31 +217,34 @@ console.log("checiittt",decodedToken.managerMail)
 
   return (
     <>
-      <div className="w-[60%] h-fit shadow-xl p-10 flex flex-col gap-6 bg-gradient-to-l from-[#DAF0FF] to-white ">
+      <div className="w-[50%] h-fit shadow-xl p-10 flex flex-col gap-6 bg-gradient-to-l from-[#DAF0FF] to-white ">
+        <ToastContainer />
         <h1 className="text-2xl text-center font-bold w-full mb-5">
           Permission Form
         </h1>
         <div className="w-[50%]">
-      <label className="block text-gray-700 mb-1">Permission Date</label>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={permissionDate}
-          onChange={(newValue) => setPermissionDate(newValue)}
-          shouldDisableDate={shouldDisableDate}
-          renderInput={(params) => (
-            <input
-              {...params.inputProps}
-              className={`w-[150%] border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500 -z-2`}
-              placeholder="Select Permission Date"
+          <label className="block text-gray-700 mb-1 font-bold text-lg">
+            Permission Date
+          </label>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={permissionDate}
+              onChange={(newValue) => setPermissionDate(newValue)}
+              shouldDisableDate={shouldDisableDate}
+              renderInput={(params) => (
+                <input
+                  {...params.inputProps}
+                  className={`w-[150%] border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500 -z-2`}
+                  placeholder="Select Permission Date"
+                />
+              )}
+              format="DD/MM/YYYY"
             />
-          )}
-          format="DD/MM/YYYY"
-        />
-      </LocalizationProvider>
-    </div>
+          </LocalizationProvider>
+        </div>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className="flex w-full gap-10">
+          <div className="flex w-full gap-10 ">
             <MobileTimePicker
               label="From Time"
               value={fromTime}
@@ -263,30 +267,33 @@ console.log("checiittt",decodedToken.managerMail)
         </LocalizationProvider>
 
         <textarea
-          className="resize-none border-2 w-[80%] "
+          placeholder="Reason for permission"
+          className="resize-none border-2 w-[80%] p-2 "
           rows={3}
           onChange={(e) => setPermissionReason(e.target.value)}
         />
 
         <button
-          className="p-5 bg-blue-500 rounded-lg w-72 "
+          className="p-3 bg-blue-500 rounded-lg w-40 "
           onClick={checkPermission}
         >
           Submit
         </button>
+
         {isPermission && (
           <ConfirmPermission
             hours={dayjs.duration(toTime.diff(fromTime)).asHours().toFixed(2)}
             reason={permissionReason}
             fromTime={fromTime.format("hh:mm A")}
             toTime={toTime.format("hh:mm A")}
-            permissionDate={permissionDate}
+            permissionDate={formatDate(permissionDate)}
             employeeName={decodedToken.empName}
             onClose={setIsPermission}
             applyPermission={applyPermission}
           />
         )}
       </div>
+      
     </>
   );
 };

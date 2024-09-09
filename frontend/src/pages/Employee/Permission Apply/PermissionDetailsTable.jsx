@@ -15,7 +15,7 @@ const PermissionDetailTable = () => {
     const getUserDetails = async () => {
       try {
         const res = await axios.post(
-          "http://localhost:5000/emp/getEmp",
+          `${process.env.REACT_APP_BASE_URL}/emp/getEmp`,
           { empId },
           {
             headers: {
@@ -49,26 +49,26 @@ const PermissionDetailTable = () => {
           <tbody>
             <div>
               <tr className="hover:bg-gray-50 transition-colors">
-                <td className="w-full py-4 px-6 border-b border-gray-200 text-gray-600 font-bold text-left">
+                <td className="w-full py-4 px-6 border-b border-gray-200 text-gray-600 text-lg font-bold text-left">
                   Total Permission
                 </td>
-                <td className="py-4 px-6 border-b border-gray-200 text-gray-700 text-center">
+                <td className="py-4 px-6 border-b border-gray-200  text-lg  text-gray-700 text-center">
                   4
                 </td>
               </tr>
               <tr className="hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-6 border-b border-gray-200 text-gray-600 font-bold text-left">
+                <td className="py-4 px-6 border-b border-gray-200 text-gray-600 font-bold  text-lg  text-left">
                   Permission Avalied
                 </td>
-                <td className="py-4 px-6 border-b border-gray-200 text-gray-700 text-center">
+                <td className="py-4 px-6 border-b border-gray-200 text-gray-700  text-lg  text-center">
                   {userDetails.permissionAvailed}
                 </td>
               </tr>
               <tr className="hover:bg-gray-50 transition-colors">
-                <td className="py-4 px-6 border-b border-gray-200 text-gray-600 font-bold text-left">
+                <td className="py-4 px-6 border-b border-gray-200 text-gray-600  text-lg  font-bold text-left">
                   Permission Remaining
                 </td>
-                <td className="py-4 px-6 border-b border-gray-200 text-gray-700 text-center">
+                <td className="py-4 px-6 border-b border-gray-200 text-gray-700  text-lg  text-center">
                   {4 - userDetails.permissionAvailed}
                 </td>
               </tr>
