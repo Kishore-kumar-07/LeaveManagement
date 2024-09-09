@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
+
 const LoginTextFeild = () => {
   const navigate = useNavigate();
   const [RFID, setRFID] = useState("");
@@ -14,7 +15,7 @@ const LoginTextFeild = () => {
       try {
         console.log(RFID);
         const res = await axios.post(
-          `http://localhost:5000/emp/login`,
+          `${process.env.REACT_APP_BASE_URL}/emp/login`,
           {
             empId: RFID,
           },
@@ -52,7 +53,7 @@ const LoginTextFeild = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8 ">
       <div className="bg-white rounded-lg shadow-lg flex flex-col items-center p-6 w-full max-w-md">
         <h2 className="text-black mb-6 text-2xl sm:text-3xl font-medium text-center">
           Log In

@@ -11,8 +11,12 @@ import EmailTemplate from "./EmailTemplate";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const Leaveform = () => {
+  const navigate = useNavigate();
+  const [classfalse, setclassfalse] = useState("");
+
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [isHalfDayFrom, setIsHalfDayFrom] = useState(false);
@@ -67,13 +71,13 @@ const Leaveform = () => {
   const checkLeave = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/leave/checkLeave",
+        `${process.env.REACT_APP_BASE_URL}/leave/checkLeave`,
         {
           empId: decodedToken.empId,
           role: decodedToken.role,
           leaveType: leaveType,
           from: {
-            date: fromDate,
+            date: formatDate(fromDate),
             firstHalf: false,
             secondHalf: false,
           },
@@ -101,7 +105,12 @@ const Leaveform = () => {
   const calculateLeaveDays = () => {
     if (!fromDate || !toDate) return 0;
 
-    const diffInTime = toDate.getTime() - fromDate.getTime();
+    // Convert Day.js objects to native JavaScript Date objects
+    const fromDateObj = dayjs(fromDate).toDate();
+    const toDateObj = dayjs(toDate).toDate();
+
+    // Calculate time difference
+    const diffInTime = toDateObj.getTime() - fromDateObj.getTime();
     const totalDays = diffInTime / (1000 * 3600 * 24) + 1;
 
     let adjustedDays = totalDays;
@@ -115,19 +124,19 @@ const Leaveform = () => {
   const handleConfirm = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/leave/apply",
+        `${process.env.REACT_APP_BASE_URL}/leave/apply`,
         {
           empId: decodedToken.empId,
           empName: decodedToken.empName,
           role: decodedToken.role,
           leaveType: leaveType,
           from: {
-            date: fromDate,
+            date: formatDate(fromDate),
             firstHalf: false,
             secondHalf: false,
           },
           to: {
-            date: toDate,
+            date: formatDate(toDate),
             firstHalf: false,
             secondHalf: false,
           },
@@ -145,7 +154,9 @@ const Leaveform = () => {
       );
       console.log("ksdhfgiyrsgbrwnh");
       if (res.status === 201) {
-        alert("Leave Requested Successfully");
+        setIsLOP(!isLOP);
+        setPopupVisible(!popupVisible);
+        toast.success("Leave Appliled Successfully");
         console.log(res.data.leave._id);
         sendLeaveEmail(res.data.leave._id, "false");
       } else {
@@ -160,6 +171,7 @@ const Leaveform = () => {
       console.log("data", res.data);
     } catch (error) {
       console.error("Error Leave Apply", error);
+      toast.error("Error in Applying Leave");
     } finally {
       // setIsAppliedLeave(!isAppliedLeave);
       // setIsLOP(!isLOP);
@@ -171,8 +183,8 @@ const Leaveform = () => {
       <EmailTemplate
         empId={decodedToken.empId}
         leaveType={leaveType}
-        fromDate={fromDate.toLocaleDateString("en-GB")}
-        toDate={toDate.toLocaleDateString("en-GB")}
+        fromDate={formatDate(fromDate)}
+        toDate={formatDate(toDate)}
         leaveReason={leaveReason}
         fromDay="Full Day"
         toDay="Full Day"
@@ -186,7 +198,7 @@ const Leaveform = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/mail/send",
+        `${process.env.REACT_APP_BASE_URL}/mail/send`,
         {
           email: "mohammedashif.a2022cse@sece.ac.in",
           html: emailContent,
@@ -200,8 +212,10 @@ const Leaveform = () => {
       );
 
       if (response.status === 200) {
-        // navigate("/thank-you");
-        alert("thank you");
+        toast.success("Mail sent Successfully");
+        setTimeout(() => {
+          navigate("/thank-you");
+        }, 3000);
       } else {
         toast.error("Error in sending Email");
       }
@@ -214,26 +228,37 @@ const Leaveform = () => {
     }
   };
 
+  var totalDays = calculateLeaveDays();
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const totalDays = calculateLeaveDays();
+    if (fromDate && toDate) {
+      setPopupVisible(true);
+
+      // Use a function inside setState to ensure the latest state is used.
+      setclassfalse(() => ""); // Reset classfalse
+    } else {
+      console.log("classfalse", classfalse);
+
+      setclassfalse(() => "false"); // Set it to "false" correctly
+      setPopupVisible(false);
+    }
+
     const halfDayInfo = {
       fromHalf: isHalfDayFrom ? fromHalf : "Full Day",
       toHalf: isHalfDayTo ? toHalf : "Full Day",
     };
 
     setLeaveDetails({
-      fromDate: fromDate ? fromDate.toLocaleDateString("en-GB") : "",
-      toDate: toDate ? toDate.toLocaleDateString("en-GB") : "",
+      fromDate: fromDate ? formatDate(fromDate) : "",
+      toDate: toDate ? formatDate(toDate) : "",
       leaveReason,
       leaveDescription,
       totalDays,
       halfDayInfo,
       leaveType,
     });
-
-    setPopupVisible(true);
   };
 
   const handleFromDayTypeChange = (type) => {
@@ -253,7 +278,8 @@ const Leaveform = () => {
   };
 
   return (
-    <div className="w-full md:w-[50%] py-8 mx-auto border-2 rounded-lg bg-gradient-to-l from-[#DAF0FF] to-white shadow-xl flex flex-col justify-center items-center">
+    <div className="w-[70%] md:w-[50%] py-8  border-2 rounded-lg bg-gradient-to-l from-[#DAF0FF] to-white shadow-xl flex flex-col justify-center items-center">
+      <ToastContainer />
       <h2 className="text-4xl font-bold mb-4 text-center text-blue-800">
         Apply for Leave
       </h2>
@@ -263,7 +289,7 @@ const Leaveform = () => {
       >
         {/* Leave Type */}
         <div className="w-full mb-4">
-          <label className="block text-gray-700 mb-2 text-xl font-semibold">
+          <label className="block text-gray-700 mb-2 text-xl font-bold">
             Leave Type
           </label>
           <div className="flex gap-4 flex-wrap">
@@ -286,15 +312,20 @@ const Leaveform = () => {
         </div>
 
         {/* From Date */}
-        <div className="w-full mb-4 flex flex-wrap gap-4 items-center">
+        <div className="w-full mb-4 flex flex-wrap gap-4 items-center  ">
           <div className="w-[30%]">
             <label
               className={`${
-                !fromDate ? "text-red-500" : "text-black"
+                !toDate && classfalse !== "" ? "text-red-500" : "text-black"
               } block mb-2 text-lg`}
             >
-              {fromDate ? <div>From Date</div> : <div>From Date*</div>}
+              {toDate && classfalse === "" ? (
+                <div>From Date </div>
+              ) : (
+                <div> enter the From Date*</div>
+              )}
             </label>
+
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 value={fromDate}
@@ -308,11 +339,7 @@ const Leaveform = () => {
                 renderInput={(params) => (
                   <input
                     {...params.inputProps}
-                    className={`${
-                      !fromDate
-                        ? "border-red-500 text-red-500"
-                        : "border-gray-300 text-black"
-                    } w-full border rounded-md p-2 focus:outline-none focus:ring`}
+                    className="w-full border rounded-md p-2 focus:outline-none focus:ring"
                     placeholder="Select From Date"
                   />
                 )}
@@ -320,17 +347,9 @@ const Leaveform = () => {
               />
             </LocalizationProvider>
           </div>
+
           {/* Half/Full Day From */}
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => handleFromDayTypeChange("half")}
-              className={`p-2 rounded-md ${
-                isHalfDayFrom ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              Half Day
-            </button>
+          <div className="flex gap-4 mt-7">
             <button
               type="button"
               onClick={() => handleFromDayTypeChange("full")}
@@ -340,10 +359,20 @@ const Leaveform = () => {
             >
               Full Day
             </button>
+            <button
+              type="button"
+              onClick={() => handleFromDayTypeChange("half")}
+              className={`p-2 rounded-md ${
+                isHalfDayFrom ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              Half Day
+            </button>
           </div>
+
           {/* First/Second Half From */}
           {isHalfDayFrom && (
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-8 text-lg">
               {["First Half", "Second Half"].map((half) => (
                 <label key={half} className="flex items-center">
                   <input
@@ -366,11 +395,16 @@ const Leaveform = () => {
           <div className="w-[30%]">
             <label
               className={`${
-                !fromDate ? "text-red-500" : "text-black"
+                !toDate && classfalse !== "" ? "text-red-500" : "text-black"
               } block mb-2 text-lg`}
             >
-              {toDate ? <div>To Date</div> : <div>To Date*</div>}
+              {toDate && classfalse === "" ? (
+                <div>To Date </div>
+              ) : (
+                <div> Enter the To Date*</div>
+              )}
             </label>
+
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 value={toDate}
@@ -381,7 +415,7 @@ const Leaveform = () => {
                 renderInput={(params) => (
                   <input
                     {...params.inputProps}
-                    className="w-full border-2 border-red-500"
+                    className="w-full border rounded-md p-2 focus:outline-none focus:ring"
                     placeholder="Select To Date"
                   />
                 )}
@@ -391,16 +425,7 @@ const Leaveform = () => {
           </div>
 
           {/* Half/Full Day To */}
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => handleToDayTypeChange("half")}
-              className={`p-2 rounded-md ${
-                isHalfDayTo ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              Half Day
-            </button>
+          <div className="flex gap-4 mt-7">
             <button
               type="button"
               onClick={() => handleToDayTypeChange("full")}
@@ -410,11 +435,20 @@ const Leaveform = () => {
             >
               Full Day
             </button>
+            <button
+              type="button"
+              onClick={() => handleToDayTypeChange("half")}
+              className={`p-2 rounded-md ${
+                isHalfDayTo ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+            >
+              Half Day
+            </button>
           </div>
 
           {/* First/Second Half To */}
           {isHalfDayTo && (
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-8 text-lg">
               {["First Half", "Second Half"].map((half) => (
                 <label key={half} className="flex items-center">
                   <input
@@ -437,7 +471,7 @@ const Leaveform = () => {
           <label className="block text-gray-700 mb-2 text-lg">
             Leave Reason
           </label>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-4 flex-wrap text-lg">
             {["Personal", "Medical", "Vacation", "Other"].map((reason) => (
               <label key={reason} className="flex items-center">
                 <input
@@ -453,17 +487,16 @@ const Leaveform = () => {
             ))}
           </div>
         </div>
-
         {/* Leave Description */}
         {leaveReason === "Other" && (
-          <div className="w-full mb-3">
-            <label className="block text-gray-700 mb-2 text-lg">
+          <div className="w-full flex items-center mb-3">
+            <label className="block text-gray-700 mb-2 text-lg mr-5">
               Leave Description
             </label>
             <textarea
               value={leaveDescription}
               onChange={(e) => setLeaveDescription(e.target.value)}
-              className="w-full p-3 border rounded-md resize-none"
+              className="w-[50%] p-3 border rounded-md resize-none"
               rows="2"
               placeholder="Enter a description of your leave"
             ></textarea>
@@ -472,15 +505,16 @@ const Leaveform = () => {
 
         <button
           type="submit"
-          className="w-52 bg-blue-500 text-white p-3 rounded-md text-lg font-bold"
+          className="w-52 bg-blue-500 text-white p-3 rounded-md text-lg font-bold shadow-lg"
         >
           Submit Leave
         </button>
       </form>
 
+      {/* Popup for Leave Details */}
       {popupVisible && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full md:w-[70%] overflow-x-auto">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[40%] flex flex-col justify-center overflow-x-auto">
             <div className="flex justify-between">
               <h3 className="text-xl font-bold mb-4 text-blue-800">
                 Leave Details
@@ -492,63 +526,91 @@ const Leaveform = () => {
                 X
               </h3>
             </div>
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Field
-                  </th>
-                  <th className="border border-gray-300 p-2 text-left">
-                    Value
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Display Leave Details */}
-                <tr>
-                  <td className="border border-gray-300 p-2">Leave Type</td>
-                  <td className="border border-gray-300 p-2">
-                    {leaveDetails.leaveType}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">From Date</td>
-                  <td className="border border-gray-300 p-2">
-                    {leaveDetails.fromDate}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">To Date</td>
-                  <td className="border border-gray-300 p-2">
-                    {leaveDetails.toDate}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Number of Days</td>
-                  <td className="border border-gray-300 p-2">
-                    {leaveDetails.numOfDays}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Leave Reason</td>
-                  <td className="border border-gray-300 p-2">
-                    {leaveDetails.leaveReason}
-                  </td>
-                </tr>
-                {leaveDetails.leaveDescription && (
+            <div className="w-full flex justify-center items-center">
+              <table className="w-[90%] border-collapse text-lg border border-gray-300">
+                <thead>
                   <tr>
+                    <th className="border border-gray-300 p-2 text-left">
+                      Field
+                    </th>
+                    <th className="border border-gray-300 p-2 text-left">
+                      Value
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Display Leave Details */}
+                  <tr>
+                    <td className="border  border-gray-300 p-2">Leave Type</td>
                     <td className="border border-gray-300 p-2">
-                      Leave Description
-                    </td>
-                    <td className="border border-gray-300 p-2">
-                      {leaveDetails.leaveDescription}
+                      {leaveDetails.leaveType}
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                  <tr>
+                    <td className="border border-gray-300 p-2">From Date</td>
+                    <td className="border border-gray-300 p-2">
+                      {leaveDetails.fromDate}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-2">To Date</td>
+                    <td className="border border-gray-300 p-2">
+                      {leaveDetails.toDate}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-2">
+                      Number of Days
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {leaveDetails.totalDays}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-2">Leave Reason</td>
+                    <td className="border border-gray-300 p-2">
+                      {leaveDetails.leaveReason}
+                    </td>
+                  </tr>
+                  {leaveDetails.leaveDescription && (
+                    <tr>
+                      <td className="border border-gray-300 p-2">
+                        Leave Description
+                      </td>
+                      <td className="border border-gray-300 p-2">
+                        {leaveDetails.leaveDescription}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pt-5 flex justify-center items-center">
+              <button
+                className="bg-green-500  w-[100px] rounded-md h-[40px]"
+                onClick={checkLeave}
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
+      )}
+      {isLOP && (
+        <LeaveNotification
+          totalLeaveDays={totalDays}
+          casualLeaveDays={
+            leaveType === "Casual Leave"
+              ? summary.CL
+              : leaveType === "privilege Leave"
+              ? summary.PL
+              : summary.Paternity
+          }
+          lopDays={summary.LOP}
+          handleCancel={handleCancel}
+          handleConfirm={handleConfirm}
+        />
       )}
     </div>
   );
