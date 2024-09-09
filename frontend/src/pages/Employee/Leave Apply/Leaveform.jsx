@@ -41,10 +41,10 @@ const Leaveform = () => {
   };
 
   const today = dayjs();
-  const maxDate = today.add(2, "month").endOf("month");
+  const maxDate = today.add(1, "month").endOf("month");
 
   const shouldDisableDate = (date) => {
-    return date.day() === 0 || date.day() === 6;
+    return date.day() === 0 || date.day() === 6; 
   };
 
   const shouldDisableToDate = (date) => {
@@ -142,7 +142,7 @@ const Leaveform = () => {
           numberOfDays: calculateLeaveDays(),
           reasonType: leaveReason,
           reason: leaveDescription,
-          LOP: 1,
+          LOP:summary.LOP,
         },
         {
           headers: {

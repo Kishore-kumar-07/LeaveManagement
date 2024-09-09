@@ -16,10 +16,12 @@ const LeaveHistoryTable = (props) => {
 
   return (
     <>
-      <div className='w-[100%] p-1 bg-slate-100 rounded-lg'>
-        <h1 className='text-xl font-semibold mb-2'>
+      <div className='w-[100%] p-5 bg-slate-100 rounded-lg'>
+       <div className='w-full bg-'>
+       <h1 className='text-xl font-semibold mb-2'>
           Leave Log
         </h1>
+        </div>
         <div className='flex flex-wrap flex-col w-[100%]'>
           <table className='table-fixed'>
             <thead className="divide-y divide-gray-200 bg-white">

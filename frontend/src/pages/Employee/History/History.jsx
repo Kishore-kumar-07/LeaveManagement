@@ -67,7 +67,7 @@ const getEmployeePermissionsLogs = async()=>{
     <div className='h-full w-full flex justify-center items-center'>
     <h1>
     <LeaveHistoryTable LeaveLogs={leaveLogs}/>
-        <PermissionHistoryTable PermissionLogs={permissionLogs}/>
+    <PermissionHistoryTable PermissionLogs={permissionLogs}/>
     </h1>
    </div>
   )
