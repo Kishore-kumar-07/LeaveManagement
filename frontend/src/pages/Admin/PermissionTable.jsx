@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Pagination from './Pagination';
-import { MdMessage, MdClose, MdEdit } from 'react-icons/md';
-import {jwtDecode} from 'jwt-decode';
-import { ToastContainer, toast } from 'react-toastify';
+import Pagination from "./Pagination";
+import { MdMessage, MdClose, MdEdit } from "react-icons/md";
+import { jwtDecode } from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
 import { IoMdSearch } from "react-icons/io";
-import { MdArrowDropDown } from 'react-icons/md';
+import { MdArrowDropDown } from "react-icons/md";
 
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const PermissionTable = () => {
-
   const headers = [
     "S.No",
     "Name",
@@ -24,7 +23,7 @@ const PermissionTable = () => {
     "Action",
   ];
 
-  const token = document.cookie.split('=')[1];
+  const token = document.cookie.split("=")[1];
   const decodedToken = jwtDecode(token);
   const empId = decodedToken.empId;
 
@@ -35,8 +34,8 @@ const PermissionTable = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredData, setFilteredData] = useState([]); 
-  const [dropdownOpen, setDropdownOpen] = useState(false); 
+  const [filteredData, setFilteredData] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
 
   const rowsPerPage = 6; // Adjust as needed
@@ -48,30 +47,23 @@ const PermissionTable = () => {
     setCurrentPage(page);
   };
 
-   const handleFilter = (status) => {
-    setStatusFilter(status);
-    if (status === "All") {
-      setFilteredData(filteredData);
-    } else {
-      setFilteredData(filteredData.filter(record => record.status === status));
-    }
-    setCurrentPage(1); // Reset to first page after filtering
-  };
-
-
   const handleStatusChange = async (id, status) => {
     try {
-      console.log(status)
-      const response = await axios.post(`http://localhost:5000/permission/updatePermission`, {
-        empId : empId,
-        permissionId: id,
-        status : status
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      console.log(status);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/permission/updatePermission`,
+        {
+          empId: empId,
+          permissionId: id,
+          status: status,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 200) {
         toast.success(`Leave request ${status.toLowerCase()} successfully!`);
@@ -79,7 +71,6 @@ const PermissionTable = () => {
       } else {
         toast.error(`Failed to ${status.toLowerCase()} leave request.`);
       }
-
     } catch (error) {
       console.error(`Error updating leave status:`, error);
     }
@@ -101,18 +92,22 @@ const PermissionTable = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/permission/getPermission', {
-        empId
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/permission/getPermission`,
+        {
+          empId,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const filteredData = response.data;
       setFilteredData(filteredData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -123,8 +118,9 @@ const PermissionTable = () => {
     if (query === "") {
       setFilteredData(data);
     } else {
-      setFilteredData(data.filter((row) => row.empName.toLowerCase().startsWith(query)));
-    
+      setFilteredData(
+        data.filter((row) => row.empName.toLowerCase().startsWith(query))
+      );
     }
     setCurrentPage(1); // Reset to first page after filtering
   };
@@ -136,45 +132,7 @@ const PermissionTable = () => {
   return (
     <div className="w-full bg-slate-100 p-3 border-slate-950 rounded-lg">
       <ToastContainer />
-      
-      <div className="mb-4 flex justify-between">
-        <div className="flex gap-3 w-[50%] justify-start items-center">
-        <IoMdSearch className="text-3xl font-semibold "/>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Search by Employee Name"
-          className="p-2 border border-gray-300 rounded-lg w-[50%]"
-        />
-        </div>
-        <div>
-          <div className="mb-4 relative">
-        <button
-          className="bg-gray-200 text-gray-700 px-4 py-2 rounded flex items-center gap-2"
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-        >
-          {statusFilter} <MdArrowDropDown />
-        </button>
-        {dropdownOpen && (
-          <ul className="absolute bg-white border border-gray-300 rounded mt-2 w-full z-10">
-            {statusOptions.map((status, index) => (
-              <li
-                key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  handleFilter(status);
-                  setDropdownOpen(false); // Close dropdown after selection
-                }}
-              >
-                {status}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-        </div>
-      </div>
+
       <div className="w-full overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 bg-white">
           <thead className="bg-gray-50">
@@ -211,7 +169,9 @@ const PermissionTable = () => {
                   {row.to}
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-md font-medium text-gray-900">
-                  {row.hrs < 1 ? `${(row.hrs * 60).toFixed(2)} mins` : `${row.hrs.toFixed(2)} hrs`}
+                  {row.hrs < 1
+                    ? `${(row.hrs * 60).toFixed(2)} mins`
+                    : `${row.hrs.toFixed(2)} hrs`}
                 </td>
                 <td
                   className="px-4 py-2 whitespace-nowrap text-2xl font-medium text-gray-900 cursor-pointer"
@@ -220,14 +180,14 @@ const PermissionTable = () => {
                   <MdMessage />
                 </td>
                 <td
-              className={`px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 gap-4 ${
-                row.status === "Approved"
-                  ? "bg-green-200"
-                  : row.status === "Denied"
-                  ? "bg-red-200"
-                  : "bg-yellow-200"
-              }`}
-            >
+                  className={`px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 gap-4 ${
+                    row.status === "Approved"
+                      ? "bg-green-200"
+                      : row.status === "Denied"
+                      ? "bg-red-200"
+                      : "bg-yellow-200"
+                  }`}
+                >
                   {row.status}
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900  gap-4">
@@ -275,16 +235,11 @@ const Popup = ({ isOpen, onClose, content }) => {
       <div className="bg-white text-black p-6 rounded-lg shadow-lg z-10 max-w-lg w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-gray-900">Details</h2>
-          <button
-            onClick={onClose}
-            className="text-black hover:text-gray-500"
-          >
+          <button onClick={onClose} className="text-black hover:text-gray-500">
             <MdClose size={24} />
           </button>
         </div>
-        <div className="text-black">
-          {content}
-        </div>
+        <div className="text-black">{content}</div>
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
@@ -310,10 +265,7 @@ const EditPopup = ({ isOpen, onClose, row, onStatusChange }) => {
       <div className="bg-white text-black p-6 rounded-lg shadow-lg z-10 max-w-lg w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-gray-900">Edit Permission</h2>
-          <button
-            onClick={onClose}
-            className="text-black hover:text-gray-500"
-          >
+          <button onClick={onClose} className="text-black hover:text-gray-500">
             <MdClose size={24} />
           </button>
         </div>
@@ -322,13 +274,18 @@ const EditPopup = ({ isOpen, onClose, row, onStatusChange }) => {
           <p>Type: Permission</p>
           <p>From: {row.from}</p>
           <p>To: {row.to}</p>
-          <p>Hours: {row.hrs < 1 ? `${(row.hrs * 60).toFixed(2)} mins` : `${row.hrs.toFixed(2)} hrs`}</p>
+          <p>
+            Hours:{" "}
+            {row.hrs < 1
+              ? `${(row.hrs * 60).toFixed(2)} mins`
+              : `${row.hrs.toFixed(2)} hrs`}
+          </p>
           <p>Reason: {row.reason}</p>
         </div>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={() => {
-              onStatusChange(row._id, 'Approved');
+              onStatusChange(row._id, "Approved");
               onClose();
             }}
             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -337,7 +294,7 @@ const EditPopup = ({ isOpen, onClose, row, onStatusChange }) => {
           </button>
           <button
             onClick={() => {
-              onStatusChange(row._id, 'Denied');
+              onStatusChange(row._id, "Denied");
               onClose();
             }}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

@@ -19,6 +19,11 @@ dayjs.extend(duration);
 
 const PermissionForm = () => {
   const navigate = useNavigate();
+  const [toTime, setToTime] = useState(dayjs().add(1, "hour"));
+  const [permissionDate, setPermissionDate] = useState(null);
+  const [permissionReason, setPermissionReason] = useState("");
+  const [isPermission, setIsPermission] = useState(false);
+  const [amPm, setAmPm] = useState("");
 
   const token = document.cookie.split("=")[1];
   console.log(token);
@@ -33,10 +38,7 @@ const PermissionForm = () => {
       ? dayjs()
       : dayjs().hour(9)
   );
-  const [toTime, setToTime] = useState(dayjs().add(1, "hour"));
-  const [permissionDate, setPermissionDate] = useState(null);
-  const [permissionReason, setPermissionReason] = useState("");
-  const [isPermission, setIsPermission] = useState(false);
+
 
   const isTimeExceeding = () => {
     const timeDifference = dayjs.duration(toTime.diff(fromTime)).asHours();
@@ -60,6 +62,7 @@ const PermissionForm = () => {
 
     return isWeekend || !(isToday || isTomorrow || isMonday);
   };
+
 
   // Handle fromTime change
   const handleFromTimeChange = (newTime) => {
@@ -142,6 +145,11 @@ const PermissionForm = () => {
           empId: decodedToken.empId,
           date: formatDate(permissionDate),
           hrs: dayjs.duration(toTime.diff(fromTime)).asHours(),
+        session: {
+        "firstHalf": amPm === "AM"?true:false,
+        "secondHalf": amPm === "PM"?true:false
+    },
+
         },
         {
           headers: {
@@ -248,7 +256,10 @@ const PermissionForm = () => {
             <MobileTimePicker
               label="From Time"
               value={fromTime}
-              onChange={(newValue) => setFromTime(newValue)}
+              onChange={(newValue) => {setFromTime(newValue)
+                const amOrPm = newValue.format("A"); // This returns "AM" or "PM"
+                setAmPm(amOrPm);
+              }}
               minTime={dayjs().set("hour", 9).set("minute", 0)}
               maxTime={dayjs().set("hour", 17).set("minute", 0)}
               renderInput={(params) => <TextField {...params} />}

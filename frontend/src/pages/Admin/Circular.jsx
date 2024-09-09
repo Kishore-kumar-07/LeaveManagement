@@ -42,7 +42,7 @@ export const Circular = () => {
   // Fetch circular messages
   const getCircular = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/circular/getAll", {
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/circular/getAll`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export const Circular = () => {
   const sendCircular = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/circular/save",
+        `${process.env.REACT_APP_BASE_URL}/circular/save`,
         {
           empId: empId,
           empName: decodedToken.empName,

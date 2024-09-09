@@ -4,6 +4,7 @@ import EmployeeHome from "./pages/Employee/EmployeeHome";
 import Login from "./pages/User/Login";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Thankyou from "./pages/Thankyou/Thankyou";
+import AdminHome from './pages/Admin/AdminHome'
 
 
 function App() {
@@ -16,6 +17,10 @@ function App() {
     {
       path: "/Employee/",
       element: <EmployeeHome />,
+    },
+    {
+      path: "/Admin/",
+      element: <AdminHome />,
     },
     {
       path:'/thank-you',

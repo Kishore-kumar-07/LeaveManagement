@@ -5,7 +5,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function EmployeeUserDetails() {
+function EmployeeUserDetails({setIsPaternity}) {
   const token = document.cookie.split("=")[1];
   const decodedToken = jwtDecode(token);
   const empId = decodedToken.empId;
@@ -33,6 +33,8 @@ function EmployeeUserDetails() {
         }
 
         setUserDetails(res.data[0]);
+        setIsPaternity(userDetails.isPaternity)
+
       } catch (error) {
         console.error("Error fetching user details:", error);
       }

@@ -11,8 +11,14 @@ import History from "./History/History";
 import PaySlip from "./Pay Slip/PaySlip";
 import Nav from "./Nav";
 import { jwtDecode } from "jwt-decode";
+
+
+
 function EmployeeHome() {
   const [option, setOption] = useState("Home");
+  const [isPaternity,setIsPaternity] = useState(null);
+
+
   const token = document.cookie.split("=")[1];
   console.log(token);
   const decodedToken = jwtDecode(token);
@@ -26,7 +32,7 @@ function EmployeeHome() {
           <div className="h-screen w-screen flex flex-col items-center justify-center">
             <div className="w-[90%] h-[90%] flex justify-around items-start ">
               <div className="h-[60%]">
-                <EmployeeUserDetails />
+                <EmployeeUserDetails setIsPaternity={setIsPaternity}/>
               </div>
               <div className="flex flex-col w-[40%] gap-3 text-lg font-semibold">
                 <OptionsCard
@@ -57,7 +63,7 @@ function EmployeeHome() {
             </div>
           </div>
         ) : option === "Leave" ? (
-          <LeaveApply />
+          <LeaveApply isPaternity={isPaternity} />
         ) : option === "Permission" ? (
           <PermissionApply />
         ) : option === "History" ? (

@@ -58,7 +58,7 @@ function Nav() {
           <div className='text-xl font-semibold'>
             <img src={GVR} alt="GVR Logo" className='h-10' />
           </div>
-          <div className='relative'>
+          <div className=''>
             <button className='flex justify-center items-center ' onClick={handleUserClick}>
               <img src={userImg} alt="User" className='h-10' />
             </button>

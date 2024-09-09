@@ -13,7 +13,7 @@ import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
-const Leaveform = () => {
+const Leaveform = ({isPaternity}) => {
   const navigate = useNavigate();
 
   const [fromDate, setFromDate] = useState(null);
@@ -29,6 +29,10 @@ const Leaveform = () => {
   const [leaveType, setLeaveType] = useState("Casual Leave");
   const [summary, setSummary] = useState("");
   const [isLOP, setIsLOP] = useState(false);
+  const[fromFirstHalf,setFromFirstHalf] = useState(false);
+  const[toFirstHalf,setToFirstHalf] = useState(false);
+  const[fromSecondHalf,setFromSecondHalf] = useState(false);
+  const[toSecondHalf,setToSecondHalf] = useState(false);
   // const [isAppliedLeave, setIsAppliedLeave] = useState(false);
 
   const token = document.cookie.split("=")[1];
@@ -56,14 +60,14 @@ const Leaveform = () => {
 
   const handleLOP = () => {
     setIsLOP(!isLOP);
-    // setIsAppliedLeave(!isAppliedLeave);
+  
   };
 
   const handleCancel = (e) => {
     e.preventDefault();
     console.log("Cancelled!");
     setIsLOP(!isLOP);
-    // setIsAppliedLeave(!isAppliedLeave);
+  
     setPopupVisible(!popupVisible);
   };
 
@@ -77,8 +81,8 @@ const Leaveform = () => {
           leaveType: leaveType,
           from: {
             date: formatDate(fromDate),
-            firstHalf: false,
-            secondHalf: false,
+            firstHalf: fromFirstHalf,
+            secondHalf: fromSecondHalf,
           },
           numberOfDays: calculateLeaveDays(),
         },
@@ -131,13 +135,13 @@ const Leaveform = () => {
           leaveType: leaveType,
           from: {
             date: formatDate(fromDate),
-            firstHalf: false,
-            secondHalf: false,
+            firstHalf: fromFirstHalf,
+            secondHalf: fromSecondHalf,
           },
           to: {
             date: formatDate(toDate),
-            firstHalf: false,
-            secondHalf: false,
+            firstHalf: toFirstHalf,
+            secondHalf: toSecondHalf,
           },
           numberOfDays: calculateLeaveDays(),
           reasonType: leaveReason,
@@ -282,9 +286,9 @@ const Leaveform = () => {
             Leave Type
           </label>
           <div className="flex gap-4 flex-wrap">
-            {["Casual Leave", "Privilege Leave", "Paternity Leave"].map(
+            {["Casual Leave", decodedToken.role ==="GVR"&&"Privilege Leave", isPaternity&&"Paternity Leave"].map(
               (type) => (
-                <label key={type} className="flex items-center text-lg">
+             type &&  <label key={type} className="flex items-center text-lg">
                   <input
                     type="radio"
                     name="leaveType"
@@ -360,7 +364,16 @@ const Leaveform = () => {
                     name="halfDayFrom"
                     value={half}
                     checked={fromHalf === half}
-                    onChange={() => setFromHalf(half)}
+                    onChange={() => {
+                      if(half === "First Half" ){
+                        setFromFirstHalf(true)
+                        setToFirstHalf(false)
+                      }
+                      if(half === "Second Half" ){
+                        setFromFirstHalf(false)
+                        setToFirstHalf(true)
+                      }
+                      setFromHalf(half)}}
                     className="mr-2"
                   />
                   {half}
@@ -425,7 +438,16 @@ const Leaveform = () => {
                     name="halfDayTo"
                     value={half}
                     checked={toHalf === half}
-                    onChange={() => setToHalf(half)}
+                    onChange={() => {
+                      if(half === "First Half" ){
+                        setFromSecondHalf(true)
+                        setToSecondHalf(false)
+                      }
+                      if(half === "Second Half" ){
+                        setFromSecondHalf(false)
+                        setToSecondHalf(true)
+                      }
+                      setToHalf(half)}}
                     className="mr-2"
                   />
                   {half}

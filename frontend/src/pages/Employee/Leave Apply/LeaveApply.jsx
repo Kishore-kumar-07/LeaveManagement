@@ -2,11 +2,11 @@ import React from "react";
 import LeaveDetailTable from "./LeaveDetailTable";
 import Leaveform from "./Leaveform";
 
-function LeaveApply() {
+function LeaveApply({isPaternity}) {
   return (
     <div className="w-screen ">
       <div className="w-full flex justify-evenly">
-      <Leaveform />
+      <Leaveform isPaternity={isPaternity}/>
       <LeaveDetailTable />
       </div>
 

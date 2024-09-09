@@ -19,7 +19,7 @@ function Nav() {
   useEffect(() => {
     const getUserDetails = async () => {
       try {
-        const res = await axios.post("http://localhost:5000/emp/getEmp", { empId }, {
+        const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/emp/getEmp`, { empId }, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
