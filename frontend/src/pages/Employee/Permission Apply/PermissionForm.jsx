@@ -13,8 +13,7 @@ import ConfirmPermission from "./ConfrimPermission";
 import duration from "dayjs/plugin/duration";
 import { render } from "@react-email/render";
 import PermissionEmailTemplate from "./PermissionTemplate";
-import {  DatePicker } from "@mui/x-date-pickers";
-
+import { DatePicker } from "@mui/x-date-pickers";
 
 dayjs.extend(duration);
 
@@ -48,13 +47,11 @@ const PermissionForm = () => {
     const dayOfWeek = today.day();
 
     // Allow today and tomorrow
-    const isToday = date.isSame(today, 'day');
-    const isTomorrow = date.isSame(today.add(1, 'day'), 'day');
+    const isToday = date.isSame(today, "day");
+    const isTomorrow = date.isSame(today.add(1, "day"), "day");
 
     // If today is Friday, allow Monday (two days after tomorrow)
-    const isMonday =
-      dayOfWeek === 5 &&
-      date.isSame(today.add(3, 'day'), 'day'); // 3 days from Friday to Monday
+    const isMonday = dayOfWeek === 5 && date.isSame(today.add(3, "day"), "day"); // 3 days from Friday to Monday
 
     // Disable weekends (Saturday and Sunday)
     const isWeekend = date.day() === 0 || date.day() === 6;
@@ -166,7 +163,7 @@ const PermissionForm = () => {
       toast.error("Somthing went wrong");
     }
   };
-console.log("checiittt",decodedToken.managerMail)
+  console.log("checiittt", decodedToken.managerMail);
   const sendPermissionEmail = async (objId) => {
     const emailContent = await render(
       <PermissionEmailTemplate
@@ -221,23 +218,29 @@ console.log("checiittt",decodedToken.managerMail)
           Permission Form
         </h1>
         <div className="w-[50%]">
-      <label className="block text-gray-700 mb-1">Permission Date</label>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={permissionDate}
-          onChange={(newValue) => setPermissionDate(newValue)}
-          shouldDisableDate={shouldDisableDate}
-          renderInput={(params) => (
-            <input
-              {...params.inputProps}
-              className={`w-[150%] border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500 -z-2`}
-              placeholder="Select Permission Date"
+          <h1
+            className={`block text-gray-700 mb-1 ${
+              !permissionDate ? "text-red-500" : "text-black"
+            }`}
+          >
+            {permissionDate ? "permission Date" : "Permission Date*"}
+          </h1>{" "}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={permissionDate}
+              onChange={(newValue) => setPermissionDate(newValue)}
+              shouldDisableDate={shouldDisableDate}
+              renderInput={(params) => (
+                <input
+                  {...params.inputProps}
+                  className={`w-[150%] border rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500 -z-2`}
+                  placeholder="Select Permission Date"
+                />
+              )}
+              format="DD/MM/YYYY"
             />
-          )}
-          format="DD/MM/YYYY"
-        />
-      </LocalizationProvider>
-    </div>
+          </LocalizationProvider>
+        </div>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <div className="flex w-full gap-10">
