@@ -82,7 +82,7 @@ function LeaveDetailTable() {
 
   useEffect(() => {
     getTableData();
-  }, [tableData]);
+  }, []);
 
   const getTableData = async () => {
     try {
