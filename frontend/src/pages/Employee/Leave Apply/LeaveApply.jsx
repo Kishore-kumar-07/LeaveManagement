@@ -4,9 +4,12 @@ import Leaveform from "./Leaveform";
 
 function LeaveApply() {
   return (
-    <div className=" h-screen w-screen flex  items-center justify-start ">
+    <div className="w-screen ">
+      <div className="w-full flex justify-evenly">
       <Leaveform />
       <LeaveDetailTable />
+      </div>
+
  
     </div>
   );

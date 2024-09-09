@@ -24,7 +24,7 @@ useEffect(()=>{
 
 const getEmployeeLeaveLogs = async()=>{
   try{
-    const res =await axios.post("http://localhost:5000/leave/getLeave",
+    const res =await axios.post(`${process.env.REACT_APP_BASE_URL}/leave/getLeave`,
     {
       empId:decodedToken.empId
     },
@@ -45,7 +45,7 @@ const getEmployeeLeaveLogs = async()=>{
 
 const getEmployeePermissionsLogs = async()=>{
   try{
-    const res =await axios.post("http://localhost:5000/permission/getPermission",
+    const res =await axios.post(`${process.env.REACT_APP_BASE_URL}/permission/getPermission`,
     {
       empId:decodedToken.empId
     },
